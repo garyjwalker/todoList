@@ -28,9 +28,9 @@ const itemsSchema = new mongoose.Schema({
 const Item = mongoose.model("Item", itemsSchema)
 
 // Some default items for empty db.
-const item1 = new Item({name: "Hello"})
-const item2 = new Item({name: "World"})
-const item3 = new Item({name: "!"})
+const item1 = new Item({name: "Welcome to your todolist."})
+const item2 = new Item({name: "Hit + button to add a new item."})
+const item3 = new Item({name: "<-- Hit this to delete an item.>"})
 
 const defaultItems = [item1, item2, item3]
 
@@ -67,12 +67,15 @@ app.get("/:listName", (req, res) => {
         else {
             if (!listFound) {
                 // If list isn't found then create and populate a new one.
+                console.log("Creating new list for " + customListName)
                 const list = new List({
                     name: customListName,
                     items: defaultItems
                 })
             
                 list.save()
+
+                res.redirect("/" + customListName)
             } else {
                 // Else, display list.
                 res.render("list", {listTitle: customListName, todoList: listFound.items})
@@ -91,9 +94,21 @@ app.get("/about", (req, res) => {
 
 app.post("/", (req,res) => {
     const item = req.body.newTask
+    const listName = req.body.list
+
     const newItem = new Item({name: item})
-    newItem.save()
-    res.redirect("/")
+
+    if (listName === "Today") {
+        
+        newItem.save()
+        res.redirect("/")
+    } else {
+        List.findOne({name: listName}, (err, foundList) => {
+            foundList.items.push(newItem)
+            foundList.save()
+            res.redirect("/" + listName)
+        })
+    }
 })
 
 
