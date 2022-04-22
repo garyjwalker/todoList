@@ -34,6 +34,15 @@ const item3 = new Item({name: "!"})
 
 const defaultItems = [item1, item2, item3]
 
+// Schema for custom lists.
+const listSchema = new mongoose.Schema({
+    name: String,
+    items: [itemsSchema]
+})
+
+const List = mongoose.model("List", listSchema)
+
+
 app.get("/", (req,res) => {
     Item.find({}, "name", (err, foundItems) => {
         if (foundItems.length === 0) {
@@ -49,9 +58,36 @@ app.get("/", (req,res) => {
     })
 })
 
+
+app.get("/:listName", (req, res) => {
+    const customListName = req.params.listName 
+
+    List.findOne({name: customListName}, (err, listFound) => {
+        if (err) console.log(err)
+        else {
+            if (!listFound) {
+                // If list isn't found then create and populate a new one.
+                const list = new List({
+                    name: customListName,
+                    items: defaultItems
+                })
+            
+                list.save()
+            } else {
+                // Else, display list.
+                res.render("list", {listTitle: customListName, todoList: listFound.items})
+            }
+        }
+    })
+
+
+})
+
+
 app.get("/about", (req, res) => {
     res.render("about")
 })
+
 
 app.post("/", (req,res) => {
     const item = req.body.newTask
@@ -60,10 +96,12 @@ app.post("/", (req,res) => {
     res.redirect("/")
 })
 
+
 app.post("/delete", (req, res) => {
     Item.findByIdAndRemove(req.body.checkbox, err=>console.error)
     res.redirect("/")
 })
+
 
 app.listen(port, () => {
     console.log(`Server started on port ${port}`)
