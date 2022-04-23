@@ -5,6 +5,7 @@ const port = 3000
 const mongoose = require("mongoose")
 const express = require("express")
 const date = require(__dirname + "/date.js")
+const _ = require("lodash")
 
 const app = express()
 
@@ -60,7 +61,7 @@ app.get("/", (req,res) => {
 
 
 app.get("/:listName", (req, res) => {
-    const customListName = req.params.listName 
+    const customListName = _.capitalize(req.params.listName)
 
     List.findOne({name: customListName}, (err, listFound) => {
         if (err) console.log(err)
@@ -73,17 +74,14 @@ app.get("/:listName", (req, res) => {
                     items: defaultItems
                 })
             
-                list.save()
-
-                res.redirect("/" + customListName)
+                list.save((err, result) => res.redirect("/" + customListName))
+                
             } else {
                 // Else, display list.
                 res.render("list", {listTitle: customListName, todoList: listFound.items})
             }
         }
     })
-
-
 })
 
 
@@ -98,8 +96,7 @@ app.post("/", (req,res) => {
 
     const newItem = new Item({name: item})
 
-    if (listName === "Today") {
-        
+    if (listName === "Today") {     
         newItem.save()
         res.redirect("/")
     } else {
@@ -113,8 +110,22 @@ app.post("/", (req,res) => {
 
 
 app.post("/delete", (req, res) => {
-    Item.findByIdAndRemove(req.body.checkbox, err=>console.error)
-    res.redirect("/")
+    const listName = _.capitalize(req.body.listName)
+    const checkedItemId = req.body.checkbox
+
+    if (listName === "Today") {
+        Item.findByIdAndRemove(checkedItemId, err=>console.error)
+        res.redirect("/")
+    } else {
+        List.findOneAndUpdate({name: listName},
+            {$pull: {items: {_id: checkedItemId}}}, 
+            (err, foundList) => {
+                if (!err) {
+                    res.redirect("/" + listName)
+                } 
+            }
+        )
+    }
 })
 
 
