@@ -7,8 +7,10 @@ require("dotenv").config()
 const todolistCollection = "todolist"
 const port = 3000
 
-const dbURI = "mongodb+srv://admin-gary:" + process.env.PASS + "@cluster0.fhxzz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
-// const dbURI = "mongodb://localhost:27017/" + todolistCollection
+const dbURI = "mongodb+srv://admin-gary:" 
+                + process.env.PASS
+                + "@cluster0.fhxzz.mongodb.net/" 
+                + todolistCollection
 
 
 const app = express()
@@ -100,8 +102,7 @@ app.post("/", (req,res) => {
     const newItem = new Item({name: item})
 
     if (listName === "Today") {     
-        newItem.save()
-        res.redirect("/")
+        newItem.save((err, result) => res.redirect("/"))
     } else {
         List.findOne({name: listName}, (err, foundList) => {
             foundList.items.push(newItem)
