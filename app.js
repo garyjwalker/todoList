@@ -1,11 +1,15 @@
-const dbURI = "mongodb://localhost:27017/"
-const todolistCollection = "todolist"
-const port = 3000
-
 const mongoose = require("mongoose")
 const express = require("express")
 const date = require(__dirname + "/date.js")
 const _ = require("lodash")
+require("dotenv").config()
+
+const todolistCollection = "todolist"
+const port = 3000
+
+const dbURI = "mongodb+srv://admin-gary:" + process.env.PASS + "@cluster0.fhxzz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority"
+// const dbURI = "mongodb://localhost:27017/" + todolistCollection
+
 
 const app = express()
 
@@ -75,7 +79,6 @@ app.get("/:listName", (req, res) => {
                 })
             
                 list.save((err, result) => res.redirect("/" + customListName))
-                
             } else {
                 // Else, display list.
                 res.render("list", {listTitle: customListName, todoList: listFound.items})
