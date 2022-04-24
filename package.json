@@ -9,6 +9,9 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "engines": {
+    "node": "16.14"
+  },
   "dependencies": {
     "dotenv": "^16.0.0",
     "ejs": "^3.0.2",
