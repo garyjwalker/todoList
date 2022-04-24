@@ -5,7 +5,7 @@ const _ = require("lodash")
 require("dotenv").config()
 
 const todolistCollection = "todolist"
-const port = 3000
+const port = process.env.PORT
 
 const dbURI = "mongodb+srv://admin-gary:" 
                 + process.env.PASS
