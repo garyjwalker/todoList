@@ -1,6 +1,5 @@
 const mongoose = require("mongoose")
 const express = require("express")
-const date = require(__dirname + "/date.js")
 const _ = require("lodash")
 require("dotenv").config()
 
@@ -12,7 +11,6 @@ const dbURI = "mongodb+srv://admin-gary:"
                 + "@cluster0.fhxzz.mongodb.net/" 
                 + todolistCollection
 
-
 const app = express()
 
 // Set express variables.
@@ -21,7 +19,7 @@ app.set('view engine', 'ejs')
 app.use(express.urlencoded({extended: true}))
 app.use(express.static("public"))
 
-mongoose.connect(dbURI + todolistCollection, (err) => {if (err) console.log(err)})
+mongoose.connect(dbURI, (err) => {if (err) console.log(err)})
 
 // mongoose item schema.
 const itemsSchema = new mongoose.Schema({
@@ -56,8 +54,8 @@ app.get("/", (req,res) => {
             Item.insertMany(defaultItems, (err) => {
                 if (err) console.log(err)
                 else console.log("Successfully saved default items to database.")
+                res.redirect("/")
             })
-            res.redirect("/")
         } else {
             res.render("list", {listTitle: "Today", todoList: foundItems})
         }
